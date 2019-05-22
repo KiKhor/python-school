@@ -4,15 +4,17 @@ import pprint
 conn = sqlite3.connect('Chinook_Sqlite.sqlite')
 cursor = conn.cursor()
 
-request_text1 ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*)
-                FROM Customer
-                GROUP BY City
-                HAVING COUNT(*) > 1'''
+request_text1 ='''SELECT C.FirstName||' '||C.LastName AS FullName, C.City, N.CountInCity
+                FROM Customer AS C
+                INNER JOIN (SELECT FirstName||' '||LastName AS FullName, City, COUNT(*) AS CountInCity
+                            FROM Customer
+                            GROUP BY City
+                            HAVING CountInCity > 1) AS N ON N.City = C.City'''
 
-request_text2 ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*)
+request_text2 ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*) AS CountInCity
                 FROM Customer
                 GROUP BY City
-                HAVING COUNT(*) > 1'''
+                HAVING CountInCity > 1'''
 
 request_text3 ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*)
                 FROM Customer
