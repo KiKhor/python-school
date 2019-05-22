@@ -1,14 +1,15 @@
 import sqlite3
+import pprint
 
 conn = sqlite3.connect('Chinook_Sqlite.sqlite')
 cursor = conn.cursor()
 
-cursor.execute(
-'''SELECT Name 
-FROM Artist
-ORDER BY Name''')
-
+request_text ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*)
+                FROM Customer
+                GROUP BY City
+                HAVING COUNT(*) > 1'''
+cursor.execute(request_text)
 results = cursor.fetchall()
-print(results)
+pprint.pprint(results)
 
 conn.close()
