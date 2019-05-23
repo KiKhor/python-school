@@ -21,12 +21,30 @@ request_text2 ='''SELECT BillingCity, SUM(Total)
                 ORDER BY SUM(Total) desc
                 LIMIT 3'''
 
-request_text3 ='''SELECT FirstName||' '||LastName AS FullName, City, COUNT(*)
-                FROM Customer
-                GROUP BY City
-                HAVING COUNT(*) > 1'''
+request_text3 ='''SELECT G.Name, T.Name, Al.Title, Ar.Name
+                FROM Track AS T
+                INNER JOIN (SELECT G.Name AS Name, G.GenreId AS GenreId
+                    FROM InvoiceLine AS I
+                    LEFT JOIN Track AS T ON I.TrackId = T.TrackId
+                    LEFT JOIN Genre AS G ON T.GenreId = G.GenreId
+                    GROUP BY G.Name 
+                    HAVING  SUM(I.UnitPrice)
+                    ORDER BY SUM(I.UnitPrice) desc
+                    LIMIT 1) AS G ON T.GenreId = G.GenreId
+                LEFT JOIN Album AS Al ON T.AlbumId = Al.AlbumId
+                LEFT JOIN Artist AS Ar ON Al.ArtistId = Ar.ArtistId
+                ORDER BY T.Name, Al.Title, Ar.Name'''
 
-cursor.execute(request_text2)
+request_text31 = '''SELECT G.Name AS Name, SUM(I.UnitPrice) AS InvoiceForGenre
+                    FROM InvoiceLine AS I
+                    LEFT JOIN Track AS T ON I.TrackId = T.TrackId
+                    LEFT JOIN Genre AS G ON T.GenreId = G.GenreId
+                    GROUP BY G.Name 
+                    HAVING  InvoiceForGenre
+                    ORDER BY InvoiceForGenre desc
+                    LIMIT 1'''
+
+cursor.execute(request_text3)
 results = cursor.fetchall()
 pprint.pprint(results)
 
